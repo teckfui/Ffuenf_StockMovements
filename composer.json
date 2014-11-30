@@ -1,0 +1,10 @@
+{
+    "name":"jreinke/magento-stock-movements",
+    "type":"magento-module",
+    "license":"OSL-3.0",
+    "homepage":"https://github.com/jreinke/magento-stock-movements",
+    "description":"Magento extension to save products stock movements.",
+    "require":{
+        "magento-hackathon/magento-composer-installer":"*"
+    }
+}
