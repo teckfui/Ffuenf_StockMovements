@@ -21,6 +21,12 @@ class Bubble_StockMovements_Model_Stock_Observer
         }
     }
 
+    /**
+     * This method overrides the core listener (core listener disabled in this module's config.xml).
+     *
+     * @param $observer
+     * @return $this
+     */
     public function cancelOrderItem($observer)
     {
         $item = $observer->getEvent()->getItem();
@@ -31,9 +37,10 @@ class Bubble_StockMovements_Model_Stock_Observer
         if ($item->getId() && ($productId = $item->getProductId()) && empty($children) && $qty) {
             Mage::getSingleton('cataloginventory/stock')->backItemQty($productId, $qty);
             $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getProductId());
-            $this->insertStockMovement($stockItem, sprintf(
-                'Product restocked after order cancellation (order: %s)',
-                $item->getOrder()->getIncrementId())
+            $this->insertStockMovement(
+                $stockItem,
+                sprintf('Product restocked after order cancellation (order: %s)',$item->getOrder()->getIncrementId()),
+                $stockItem->getQty() - $qty
             );
         }
 
@@ -137,6 +144,11 @@ class Bubble_StockMovements_Model_Stock_Observer
     {
         if ($stockItem->getId()) {
 
+            $origQty = $origQty !== null ? $origQty : $stockItem->getOriginalInventoryQty();
+
+            // Do not create entry if the quantity hasn't changed
+            if ($origQty == $stockItem->getQty()) return;
+
             Mage::getModel('bubble_stockmovements/stock_movement')
                 ->setItemId($stockItem->getId())
                 ->setUser($this->_getUsername())
@@ -153,7 +165,7 @@ class Bubble_StockMovements_Model_Stock_Observer
     public function saveStockItemAfter($observer)
     {
         $stockItem = $observer->getEvent()->getItem();
-        if (!$stockItem->getStockStatusChangedAutomaticallyFlag() || $stockItem->getOriginalInventoryQty() != $stockItem->getQty()) {
+        if (!$stockItem->getStockStatusChangedAutomaticallyFlag() || ($stockItem->getOriginalInventoryQty() !== null && ($stockItem->getOriginalInventoryQty() != $stockItem->getQty()))) {
             if (!$message = $stockItem->getSaveMovementMessage()) {
                 if (Mage::getSingleton('api/session')->getSessionId()) {
                     $message = 'Stock saved from Magento API';
