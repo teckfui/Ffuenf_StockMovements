@@ -126,7 +126,14 @@ class Bubble_StockMovements_Model_Stock_Observer
         }
     }
 
-    public function insertStockMovement(Mage_CatalogInventory_Model_Stock_Item $stockItem, $message = '', $origQty = null)
+    /**
+     * Creates a new StockMovement object and commits to database.
+     *
+     * @param Mage_CatalogInventory_Model_Stock_Item $stockItem
+     * @param string $message
+     * @param null $origQty
+     */
+    public function insertStockMovement($stockItem, $message = '', $origQty = null)
     {
         if ($stockItem->getId()) {
 
@@ -170,6 +177,12 @@ class Bubble_StockMovements_Model_Stock_Observer
                         'Product restocked after credit memo creation (credit memo: %s)',
                         $creditMemo->getIncrementId()
                     );
+                }
+
+                // If there is a quote, and its inventory has already been processed, ignore this action
+                if (Mage::getSingleton('checkout/session')->getQuote() &&
+                    Mage::getSingleton('checkout/session')->getQuote()->getInventoryProcessed()) {
+                    return;
                 }
                 $this->insertStockMovement($stockItem, $message, $stockItem->getQty() - $item['qty']);
             }
