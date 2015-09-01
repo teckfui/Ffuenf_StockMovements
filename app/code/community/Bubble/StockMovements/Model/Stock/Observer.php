@@ -181,6 +181,9 @@ class Bubble_StockMovements_Model_Stock_Observer
     {
         $items = $observer->getEvent()->getItems();
         foreach ($items as $productId => $item) {
+            $product = Mage::getModel('catalog/product')->load($productId);
+            if ($product->getTypeId() != "simple") continue;
+
             $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
             if ($stockItem->getId()) {
                 $message = 'Product restocked';
