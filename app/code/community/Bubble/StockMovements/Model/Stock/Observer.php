@@ -140,7 +140,6 @@ class Bubble_StockMovements_Model_Stock_Observer
                 ->setIsInStock((int) $stockItem->getIsInStock())
                 ->setMessage($message)
                 ->save();
-            Mage::getModel('catalog/product')->load($stockItem->getProductId())->cleanCache();
         }
     }
 
