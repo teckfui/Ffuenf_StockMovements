@@ -127,7 +127,7 @@ class Bubble_StockMovements_Block_Adminhtml_Stock_Movement_Grid extends Mage_Adm
     }
 
     public function renderMovementCol($value, $row, $column, $isExport) {
-        return number_format($value, "0");
+        return number_format($value, "0", ".", "");
     }
 
     public function decorateSku($value, $row)
