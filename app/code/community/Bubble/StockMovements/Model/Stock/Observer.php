@@ -105,6 +105,7 @@ class Bubble_StockMovements_Model_Stock_Observer
                             $stockItems[$stockItem->getId()] = array(
                                 'item' => $stockItem,
                                 'orders' => array($order->getIncrementId()),
+                                'orig_qty' => $stockItem->getQty() + $orderItem->getQtyOrdered()
                             );
                         } else {
                             $stockItems[$stockItem->getId()]['orders'][] = $order->getIncrementId();
@@ -116,24 +117,26 @@ class Bubble_StockMovements_Model_Stock_Observer
 
         if (!empty($stockItems)) {
             foreach ($stockItems as $data) {
-                $this->insertStockMovement($data['item'], sprintf(
-                    'Product ordered (order%s: %s)',
-                    count($data['orders']) > 1 ? 's' : '',
-                    implode(', ', $data['orders'])
-                ));
+                $this->insertStockMovement(
+                    $data['item'],
+                    sprintf('Product ordered (order%s: %s)',count($data['orders']) > 1 ? 's' : '', implode(', ', $data['orders'])),
+                    $data['orig_qty']
+                );
             }
         }
     }
 
-    public function insertStockMovement(Mage_CatalogInventory_Model_Stock_Item $stockItem, $message = '')
+    public function insertStockMovement(Mage_CatalogInventory_Model_Stock_Item $stockItem, $message = '', $origQty = null)
     {
         if ($stockItem->getId()) {
+
             Mage::getModel('bubble_stockmovements/stock_movement')
                 ->setItemId($stockItem->getId())
                 ->setUser($this->_getUsername())
                 ->setUserId($this->_getUserId())
                 ->setIsAdmin((int) Mage::getSingleton('admin/session')->isLoggedIn())
                 ->setQty($stockItem->getQty())
+                ->setOriginalQty($origQty !== null ? $origQty : $stockItem->getOriginalInventoryQty())
                 ->setIsInStock((int) $stockItem->getIsInStock())
                 ->setMessage($message)
                 ->save();
@@ -169,7 +172,7 @@ class Bubble_StockMovements_Model_Stock_Observer
                         $creditMemo->getIncrementId()
                     );
                 }
-                $this->insertStockMovement($stockItem, $message);
+                $this->insertStockMovement($stockItem, $message, $stockItem->getQty() - $item['qty']);
             }
         }
     }

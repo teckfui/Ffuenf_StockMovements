@@ -25,6 +25,13 @@ class Bubble_StockMovements_Block_Adminhtml_Stock_Movement_Grid extends Mage_Adm
     protected function _prepareCollection()
     {
         $collection = Mage::getModel('bubble_stockmovements/stock_movement')->getCollection();
+        /** @var Bubble_StockMovements_Model_Resource_Stock_Movement_Collection $collection */
+
+        $collection->addExpressionFieldToSelect('movement', '({{qty}} - {{original_qty}})',
+            array(
+                'qty' => 'main_table.qty',
+                'original_qty' => 'main_table.original_qty'
+            ));
 
         if ($this->getProduct()) {
             $stockItem = Mage::getModel('cataloginventory/stock_item')
@@ -49,12 +56,12 @@ class Bubble_StockMovements_Block_Adminhtml_Stock_Movement_Grid extends Mage_Adm
                 'index'          => 'sku',
                 'filter_index'   => 'product.sku',
                 'type'           => 'text',
-                'frame_callback' => array($this, 'decorateSku'),
+                'frame_callback' => array($this, 'decorateSku')
             ));
         }
 
         $this->addColumn('qty', array(
-            'header'        => Mage::helper('bubble_stockmovements')->__('Quantity'),
+            'header'        => Mage::helper('bubble_stockmovements')->__('Qty'),
             'align'         => 'right',
             'index'         => 'qty',
             'type'          => 'number',
@@ -62,12 +69,24 @@ class Bubble_StockMovements_Block_Adminhtml_Stock_Movement_Grid extends Mage_Adm
             'filter_index'  => 'main_table.qty',
         ));
 
+        $this->addColumn('original_qty', array(
+            'header'        => Mage::helper('bubble_stockmovements')->__('Orig. Qty'),
+            'align'         => 'right',
+            'index'         => 'original_qty',
+            'type'          => 'number',
+            'width'         => '80px',
+            'filter_index'  => 'main_table.original_qty',
+        ));
+
+
         $this->addColumn('movement', array(
             'header'        => Mage::helper('bubble_stockmovements')->__('Movement'),
             'align'         => 'right',
             'index'         => 'movement',
+            'type'          => 'number',
             'width'         => '80px',
-            'filter'        => false,
+            'frame_callback' => array($this, 'renderMovementCol'),
+            'filter' => false
         ));
 
         $this->addColumn('is_in_stock', array(
@@ -105,6 +124,10 @@ class Bubble_StockMovements_Block_Adminhtml_Stock_Movement_Grid extends Mage_Adm
         ));
 
         return parent::_prepareColumns();
+    }
+
+    public function renderMovementCol($value, $row, $column, $isExport) {
+        return number_format($value, "0");
     }
 
     public function decorateSku($value, $row)
