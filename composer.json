@@ -1,10 +1,24 @@
 {
-    "name":"jreinke/magento-stock-movements",
-    "type":"magento-module",
-    "license":"OSL-3.0",
-    "homepage":"https://github.com/jreinke/magento-stock-movements",
-    "description":"Magento extension to save products stock movements.",
-    "require":{
-        "magento-hackathon/magento-composer-installer":"*"
+  "name": "jreinke/magento-stock-movements",
+  "type": "magento-module",
+  "description":"Magento extension to save products stock movements.",
+  "license":"OSL-3.0",
+  "authors":[
+    {
+      "name":"Johann Reinke",
+      "email":"johann.reinke@gmail.com"
     }
+  ],
+  "require": {
+    "magento-hackathon/magento-composer-installer": "*"
+  },
+  "extra": {
+    "map": [
+      ["app/code/community/Bubble/StockMovements", "app/code/community/Bubble/StockMovements"],
+      ["app/etc/modules/Bubble_StockMovements.xml","app/etc/modules/Bubble_StockMovements.xml"],
+      ["app/locale/en_US/Bubble_StockMovements.csv","app/locale/en_US/Bubble_StockMovements.csv"],
+      ["app/locale/fr_FR/Bubble_StockMovements.csv","app/locale/fr_FR/Bubble_StockMovements.csv"],
+      ["app/locale/pt_BR/Bubble_StockMovements.csv","app/locale/pt_BR/Bubble_StockMovements.csv"]
+    ]
+  }
 }
