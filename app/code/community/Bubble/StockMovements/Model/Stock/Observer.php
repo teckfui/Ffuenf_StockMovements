@@ -128,9 +128,12 @@ class Bubble_StockMovements_Model_Stock_Observer
 
         if (!empty($stockItems)) {
             foreach ($stockItems as $data) {
+                // remove duplicate order increment ids
+                $orders = array_unique($data['orders']);
+
                 $this->insertStockMovement(
                     $data['item'],
-                    sprintf('Product ordered (order%s: %s)',count($data['orders']) > 1 ? 's' : '', implode(', ', $data['orders'])),
+                    sprintf('Product ordered (order%s: %s)',count($orders) > 1 ? 's' : '', implode(', ', $orders)),
                     $data['orig_qty']
                 );
             }
