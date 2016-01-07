@@ -35,6 +35,8 @@ class Bubble_StockMovements_Model_Stock_Observer
         $qty = $item->getQtyOrdered() - max($item->getQtyShipped(), $item->getQtyInvoiced()) - $item->getQtyCanceled();
 
         if ($item->getId() && ($productId = $item->getProductId()) && empty($children) && $qty) {
+            Mage::register('bubble_stockmovements_order_cancellation_in_progress', $productId);
+
             Mage::getSingleton('cataloginventory/stock')->backItemQty($productId, $qty);
             $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
             $this->insertStockMovement(
@@ -42,6 +44,8 @@ class Bubble_StockMovements_Model_Stock_Observer
                 sprintf('Product restocked after order cancellation (order: %s)',$item->getOrder()->getIncrementId()),
                 $stockItem->getQty() - $qty
             );
+
+            Mage::unregister('bubble_stockmovements_order_cancellation_in_progress');
         }
 
         return $this;
@@ -165,6 +169,11 @@ class Bubble_StockMovements_Model_Stock_Observer
     public function saveStockItemAfter($observer)
     {
         $stockItem = $observer->getEvent()->getItem();
+
+        if (Mage::registry('bubble_stockmovements_order_cancellation_in_progress') == $stockItem->getProductId()) {
+            return;
+        }
+
         $_origQty = $stockItem->getOriginalInventoryQty() !== null ? $stockItem->getOriginalInventoryQty() : $stockItem->getOrigData('qty');
         if (!$stockItem->getStockStatusChangedAutomaticallyFlag() || ($_origQty !== null && ($_origQty != $stockItem->getQty()))) {
             if (!$message = $stockItem->getSaveMovementMessage()) {
