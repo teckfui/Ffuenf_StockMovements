@@ -169,12 +169,19 @@ class Bubble_StockMovements_Model_Stock_Observer
     public function saveStockItemAfter($observer)
     {
         $stockItem = $observer->getEvent()->getItem();
+        $_origQty = $stockItem->getOriginalInventoryQty() !== null ? $stockItem->getOriginalInventoryQty() : $stockItem->getOrigData('qty');
 
-        if (Mage::registry('bubble_stockmovements_order_cancellation_in_progress') == $stockItem->getProductId()) {
+        if (
+            (Mage::registry('bubble_stockmovements_order_cancellation_in_progress') == $stockItem->getProductId()) ||
+
+            // For some strange reason, when a bundle is checked out, the stock item's Orig. Qty is detected as 0.
+            // Online customers are unable to increase a stock item's Qty (i.e. movement > 0),
+            // so we'll prevent stock movement logging when this situation is detected
+            (!Mage::getSingleton('admin/session')->isLoggedIn() && ($stockItem->getQty() > $_origQty))
+        ) {
             return;
         }
 
-        $_origQty = $stockItem->getOriginalInventoryQty() !== null ? $stockItem->getOriginalInventoryQty() : $stockItem->getOrigData('qty');
         if (!$stockItem->getStockStatusChangedAutomaticallyFlag() || ($_origQty !== null && ($_origQty != $stockItem->getQty()))) {
             if (!$message = $stockItem->getSaveMovementMessage()) {
                 if (Mage::getSingleton('api/session')->getSessionId()) {
