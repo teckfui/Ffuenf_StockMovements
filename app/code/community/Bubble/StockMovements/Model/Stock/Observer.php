@@ -36,7 +36,7 @@ class Bubble_StockMovements_Model_Stock_Observer
 
         if ($item->getId() && ($productId = $item->getProductId()) && empty($children) && $qty) {
             Mage::getSingleton('cataloginventory/stock')->backItemQty($productId, $qty);
-            $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getProductId());
+            $stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
             $this->insertStockMovement(
                 $stockItem,
                 sprintf('Product restocked after order cancellation (order: %s)',$item->getOrder()->getIncrementId()),
