@@ -114,6 +114,18 @@ class Bubble_StockMovements_Block_Adminhtml_Stock_Movement_Grid extends Mage_Adm
             'index'         => 'user',
         ));
 
+        $this->addColumn('user_type', array(
+            'header'        => Mage::helper('bubble_stockmovements')->__('User Type'),
+            'align'         => 'center',
+            'index'         => 'is_admin',
+            'type'          => 'options',
+            'options'       => array(
+                '1' => Mage::helper('catalog')->__('Admin'),
+                '0' => Mage::helper('catalog')->__('Customer'),
+            ),
+            'filter_index'  => 'main_table.is_admin',
+        ));
+
         $this->addColumn('created_at', array(
             'header'        => Mage::helper('bubble_stockmovements')->__('Date'),
             'align'         => 'right',
