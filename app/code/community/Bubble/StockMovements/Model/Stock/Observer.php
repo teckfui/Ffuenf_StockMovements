@@ -143,8 +143,8 @@ class Bubble_StockMovements_Model_Stock_Observer
     public function insertStockMovement($stockItem, $message = '', $origQty = null)
     {
         if ($stockItem->getId()) {
-
-            $origQty = $origQty !== null ? $origQty : $stockItem->getOriginalInventoryQty();
+            $_origQty = $stockItem->getOriginalInventoryQty() !== null ? $stockItem->getOriginalInventoryQty() : $stockItem->getOrigData('qty');
+            $origQty = $origQty !== null ? $origQty : $_origQty;
 
             // Do not create entry if the quantity hasn't changed
             if ($origQty == $stockItem->getQty()) return;
@@ -155,7 +155,7 @@ class Bubble_StockMovements_Model_Stock_Observer
                 ->setUserId($this->_getUserId())
                 ->setIsAdmin((int) Mage::getSingleton('admin/session')->isLoggedIn())
                 ->setQty($stockItem->getQty())
-                ->setOriginalQty($origQty !== null ? $origQty : $stockItem->getOriginalInventoryQty())
+                ->setOriginalQty($origQty !== null ? $origQty : $_origQty)
                 ->setIsInStock((int) $stockItem->getIsInStock())
                 ->setMessage($message)
                 ->save();
@@ -165,7 +165,8 @@ class Bubble_StockMovements_Model_Stock_Observer
     public function saveStockItemAfter($observer)
     {
         $stockItem = $observer->getEvent()->getItem();
-        if (!$stockItem->getStockStatusChangedAutomaticallyFlag() || ($stockItem->getOriginalInventoryQty() !== null && ($stockItem->getOriginalInventoryQty() != $stockItem->getQty()))) {
+        $_origQty = $stockItem->getOriginalInventoryQty() !== null ? $stockItem->getOriginalInventoryQty() : $stockItem->getOrigData('qty');
+        if (!$stockItem->getStockStatusChangedAutomaticallyFlag() || ($_origQty !== null && ($_origQty != $stockItem->getQty()))) {
             if (!$message = $stockItem->getSaveMovementMessage()) {
                 if (Mage::getSingleton('api/session')->getSessionId()) {
                     $message = 'Stock saved from Magento API';
