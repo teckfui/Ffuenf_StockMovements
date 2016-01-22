@@ -7,6 +7,11 @@
  */
 class Bubble_StockMovements_Adminhtml_Stock_MovementController extends Mage_Adminhtml_Controller_Action
 {
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('catalog/stock_movements');
+    }
+
     public function listAction()
     {
         $this->_title($this->__('Catalog'))
