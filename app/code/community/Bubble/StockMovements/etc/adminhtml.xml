@@ -22,17 +22,6 @@
                             </stock_movements>
                         </children>
                     </catalog>
-                    <system>
-                        <children>
-                            <config>
-                                <children>
-                                    <stock_movements translate="title" module="bubble_stockmovements">
-                                        <title>Stock Movements</title>
-                                    </stock_movements>
-                                </children>
-                            </config>
-                        </children>
-                    </system>
                 </children>
             </admin>
         </resources>
