@@ -43,7 +43,7 @@
             </cataloginventory>
         </models>
         <events>
-            <checkout_submit_all_after>
+            <sales_order_place_after>
                 <observers>
                     <bubble_stockmovements>
                         <class>bubble_stockmovements/stock_observer</class>
