@@ -50,7 +50,7 @@
                         <method>checkoutAllSubmitAfter</method>
                     </bubble_stockmovements>
                 </observers>
-            </checkout_submit_all_after>
+            </sales_order_place_after>
             <cataloginventory_stock_item_save_after>
                 <observers>
                     <bubble_stockmovements>
